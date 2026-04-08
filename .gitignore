@@ -33,6 +33,12 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# PWA generated files (regenerated on each build)
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/fallback-*.js
 next-env.d.ts
 .env.local
 .env*.local
