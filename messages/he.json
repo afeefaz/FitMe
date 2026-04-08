@@ -53,7 +53,19 @@
       "greeting": "יום טוב 👋",
       "totalClients": "סה״כ לקוחות",
       "viewClients": "צפה בלקוחות",
-      "managePlans": "נהל תוכניות ועקוב אחר ההתקדמות"
+      "managePlans": "נהל תוכניות ועקוב אחר ההתקדמות",
+      "needsAttention": "דורש טיפול",
+      "allClients": "כל הלקוחות",
+      "recentActivity": "פעילות אחרונה",
+      "noRecentActivity": "אין פעילות אימון אחרונה",
+      "addNewClient": "+ הוסף לקוח",
+      "noPlan": "אין תוכנית",
+      "inactive": "לא פעיל",
+      "lastActive": "פעיל לאחרונה",
+      "never": "מעולם",
+      "daysAgo": "לפני {days}י",
+      "needsPlan": "צריך תוכנית",
+      "browseExercises": "עיין בתרגילים"
     },
     "clients": {
       "title": "לקוחות",
@@ -87,6 +99,7 @@
       "errorCouldNotCreate": "לא ניתן ליצור תוכנית",
       "errorSomethingWrong": "משהו השתבש",
       "noExercisesAdded": "עדיין לא נוספו תרגילים. עיין בתרגילים למטה כדי להוסיף.",
+      "saved": "התוכנית נשמרה ✓",
       "sets": "סטים",
       "reps": "חזרות",
       "rest": "מנוחה",
@@ -114,7 +127,24 @@
       "loadError": "לא ניתן לטעון תרגילים. נסה שוב.",
       "selectGroup": "בחר קבוצת שרירים לחיפוש תרגילים",
       "added": "נוסף",
-      "add": "הוסף תרגיל"
+      "add": "הוסף תרגיל",
+      "addSelected": "הוסף {count} תרגילים",
+      "loadMore": "טען עוד"
+    },
+    "actions": {
+      "title": "פעולות לקוח",
+      "resetPassword": "איפוס סיסמה",
+      "setPassword": "הגדר",
+      "sendResetEmail": "שלח אימייל לאיפוס סיסמה",
+      "newPasswordPlaceholder": "סיסמה חדשה (מינימום 8 תווים)",
+      "passwordTooShort": "הסיסמה חייבת להכיל לפחות 8 תווים",
+      "passwordUpdated": "הסיסמה עודכנה בהצלחה",
+      "resetEmailSent": "אימייל לאיפוס סיסמה נשלח",
+      "dangerZone": "אזור מסוכן",
+      "deleteClient": "מחק לקוח",
+      "deleteWarning": "פעולה זו תמחק לצמיתות את חשבון {name}, התוכניות וכל נתוני האימון. לא ניתן לבטל פעולה זו.",
+      "cancel": "ביטול",
+      "confirmDelete": "מחק לצמיתות"
     },
     "stats": {
       "workoutActivity": "פעילות אימונים",

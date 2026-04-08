@@ -1,33 +1,74 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { MUSCLE_GROUP_MAP } from "@/lib/exercises";
-import { ExerciseCard } from "./ExerciseCard";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { ExerciseDetailModal, type ModalExercise } from "@/components/ui/ExerciseDetailModal";
-import { useTranslations } from "next-intl";
+import Image from "next/image";
 import type { ExerciseDBItem } from "@/lib/types";
 
-const MUSCLE_GROUPS = Object.keys(MUSCLE_GROUP_MAP) as (keyof typeof MUSCLE_GROUP_MAP)[];
+const MUSCLE_GROUPS = Object.keys(MUSCLE_GROUP_MAP) as string[];
 const PAGE_SIZE = 20;
 
-interface ExerciseSearchProps {
-  addedIds: Set<string>;
-  onAdd: (exercises: ExerciseDBItem[]) => void;
+function BrowseCard({ exercise, onTap }: { exercise: ExerciseDBItem; onTap: () => void }) {
+  return (
+    <div
+      onClick={onTap}
+      className="btn-tap"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: "12px",
+        borderRadius: "16px",
+        backgroundColor: "var(--color-surface)",
+        border: "1.5px solid var(--color-border)",
+        cursor: "pointer",
+        transition: "border-color 0.2s",
+      }}
+    >
+      <div
+        style={{
+          width: "64px",
+          height: "64px",
+          borderRadius: "12px",
+          overflow: "hidden",
+          flexShrink: 0,
+          backgroundColor: "var(--color-bg)",
+        }}
+      >
+        <Image
+          src={exercise.gifUrl}
+          alt={exercise.name}
+          width={64}
+          height={64}
+          unoptimized
+          style={{ objectFit: "cover", width: "100%", height: "100%" }}
+        />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text)", textTransform: "capitalize", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {exercise.name}
+        </p>
+        <p style={{ fontSize: "12px", color: "var(--color-text-muted)", textTransform: "capitalize", marginTop: "2px" }}>
+          {exercise.bodyParts?.[0] ?? exercise.targetMuscles?.[0] ?? ""}
+        </p>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </div>
+  );
 }
 
-export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
-  const t = useTranslations("coach.exercises");
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+export function CoachExerciseBrowser() {
+  const [selectedGroup, setSelectedGroup] = useState<string>("chest");
   const [exercises, setExercises] = useState<ExerciseDBItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
   const [detailExercise, setDetailExercise] = useState<ModalExercise | null>(null);
-  // Multi-select state
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const abortRef = useRef<AbortController | null>(null);
 
   const fetchGroup = useCallback(async (group: string) => {
@@ -37,17 +78,15 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
 
     setSelectedGroup(group);
     setLoading(true);
-    setError(null);
     setExercises([]);
     setOffset(0);
     setHasMore(false);
-    setSelectedIds(new Set());
 
     try {
       const res = await fetch(`/api/exercises?muscle=${group}&limit=${PAGE_SIZE}&offset=0`, {
         signal: controller.signal,
       });
-      if (!res.ok) throw new Error("Failed to load exercises");
+      if (!res.ok) throw new Error();
       const data = await res.json() as { data: ExerciseDBItem[] };
       const results = data.data ?? [];
       setExercises(results);
@@ -55,50 +94,49 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
       setHasMore(results.length >= PAGE_SIZE);
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        setError(t("loadError"));
+        // silently fail
       }
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   const loadMore = useCallback(async () => {
     if (!selectedGroup || loadingMore) return;
     setLoadingMore(true);
     try {
       const res = await fetch(`/api/exercises?muscle=${selectedGroup}&limit=${PAGE_SIZE}&offset=${offset}`);
-      if (!res.ok) throw new Error("Failed to load exercises");
+      if (!res.ok) throw new Error();
       const data = await res.json() as { data: ExerciseDBItem[] };
       const results = data.data ?? [];
       setExercises((prev) => [...prev, ...results]);
       setOffset((prev) => prev + results.length);
       setHasMore(results.length >= PAGE_SIZE);
     } catch {
-      // silently ignore load more errors
+      // silently ignore
     } finally {
       setLoadingMore(false);
     }
   }, [selectedGroup, offset, loadingMore]);
 
-  const toggleSelect = useCallback((exercise: ExerciseDBItem) => {
-    if (addedIds.has(exercise.exerciseId)) return; // can't select already-added
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(exercise.exerciseId)) next.delete(exercise.exerciseId);
-      else next.add(exercise.exerciseId);
-      return next;
-    });
-  }, [addedIds]);
-
-  const handleAddSelected = () => {
-    const toAdd = exercises.filter((ex) => selectedIds.has(ex.exerciseId));
-    if (toAdd.length === 0) return;
-    onAdd(toAdd);
-    setSelectedIds(new Set());
-  };
+  // Auto-fetch chest on mount
+  useEffect(() => {
+    fetchGroup("chest");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ padding: "24px 16px" }}>
+      {/* Header */}
+      <div style={{ marginBottom: "24px" }}>
+        <h1 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text)", letterSpacing: "-0.02em" }}>
+          Exercise Library
+        </h1>
+        <p style={{ color: "var(--color-text-muted)", fontSize: "14px", marginTop: "4px" }}>
+          Tap any exercise to view the GIF & instructions
+        </p>
+      </div>
+
       {/* Muscle group pills */}
       <div
         style={{
@@ -107,6 +145,7 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
           overflowX: "auto",
           paddingBottom: "4px",
           scrollbarWidth: "none",
+          marginBottom: "20px",
         }}
       >
         {MUSCLE_GROUPS.map((group) => (
@@ -134,35 +173,24 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
       </div>
 
       {/* Results */}
-      <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-        {loading && Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {loading && Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
 
-        {error && (
-          <p style={{ color: "var(--color-red)", fontSize: "14px", textAlign: "center", padding: "24px" }}>
-            {error}
-          </p>
-        )}
-
-        {!loading && !error && selectedGroup === null && (
-          <p style={{ color: "var(--color-text-muted)", fontSize: "14px", textAlign: "center", padding: "32px 0" }}>
-            {t("selectGroup")}
-          </p>
-        )}
-
-        {!loading && !error && exercises.map((ex) => (
-          <ExerciseCard
+        {!loading && exercises.map((ex) => (
+          <BrowseCard
             key={ex.exerciseId}
             exercise={ex}
-            onAdd={(e) => onAdd([e])}
-            isAdded={addedIds.has(ex.exerciseId)}
-            selectable={!addedIds.has(ex.exerciseId)}
-            isSelected={selectedIds.has(ex.exerciseId)}
-            onToggleSelect={toggleSelect}
-            onDetail={(e) => setDetailExercise({ name: e.name, gifUrl: e.gifUrl, targetMuscles: e.targetMuscles, bodyParts: e.bodyParts, equipments: e.equipments, instructions: e.instructions })}
+            onTap={() => setDetailExercise({
+              name: ex.name,
+              gifUrl: ex.gifUrl,
+              targetMuscles: ex.targetMuscles,
+              bodyParts: ex.bodyParts,
+              equipments: ex.equipments,
+              instructions: ex.instructions,
+            })}
           />
         ))}
 
-        {/* Load More */}
         {!loading && hasMore && (
           <button
             onClick={loadMore}
@@ -170,7 +198,7 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
             className="btn-tap"
             style={{
               marginTop: "8px",
-              padding: "12px",
+              padding: "13px",
               borderRadius: "14px",
               border: "1.5px dashed var(--color-border)",
               backgroundColor: "transparent",
@@ -181,42 +209,10 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
               width: "100%",
             }}
           >
-            {loadingMore ? "…" : t("loadMore")}
+            {loadingMore ? "…" : "Load More"}
           </button>
         )}
       </div>
-
-      {/* Floating "Add N exercises" button */}
-      {selectedIds.size > 0 && (
-        <div
-          style={{
-            position: "sticky",
-            bottom: "16px",
-            marginTop: "16px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <button
-            onClick={handleAddSelected}
-            className="btn-tap"
-            style={{
-              padding: "14px 28px",
-              borderRadius: "100px",
-              border: "none",
-              backgroundColor: "var(--color-lime)",
-              color: "#000",
-              fontSize: "15px",
-              fontWeight: 800,
-              cursor: "pointer",
-              boxShadow: "0 4px 20px rgba(204,255,0,0.4)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            {t("addSelected", { count: selectedIds.size })}
-          </button>
-        </div>
-      )}
 
       <ExerciseDetailModal
         exercise={detailExercise}

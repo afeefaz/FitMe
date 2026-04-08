@@ -53,7 +53,19 @@
       "greeting": "يوم سعيد 👋",
       "totalClients": "إجمالي العملاء",
       "viewClients": "عرض العملاء",
-      "managePlans": "إدارة الخطط وتتبع التقدم"
+      "managePlans": "إدارة الخطط وتتبع التقدم",
+      "needsAttention": "يحتاج انتباهاً",
+      "allClients": "جميع العملاء",
+      "recentActivity": "النشاط الأخير",
+      "noRecentActivity": "لا يوجد نشاط تمريني مؤخراً",
+      "addNewClient": "+ إضافة عميل",
+      "noPlan": "لا توجد خطة",
+      "inactive": "غير نشط",
+      "lastActive": "آخر نشاط",
+      "never": "أبداً",
+      "daysAgo": "منذ {days} يوم",
+      "needsPlan": "يحتاج خطة",
+      "browseExercises": "تصفح التمارين"
     },
     "clients": {
       "title": "العملاء",
@@ -87,6 +99,7 @@
       "errorCouldNotCreate": "تعذر إنشاء الخطة",
       "errorSomethingWrong": "حدث خطأ ما",
       "noExercisesAdded": "لم تتم إضافة تمارين بعد. تصفح التمارين أدناه لإضافتها.",
+      "saved": "تم حفظ الخطة ✓",
       "sets": "المجموعات",
       "reps": "التكرارات",
       "rest": "الراحة",
@@ -114,7 +127,24 @@
       "loadError": "تعذر تحميل التمارين. حاول مرة أخرى.",
       "selectGroup": "اختر مجموعة عضلية لتصفح التمارين",
       "added": "تمت الإضافة",
-      "add": "إضافة تمرين"
+      "add": "أضف تمريناً",
+      "addSelected": "أضف {count} تمارين",
+      "loadMore": "تحميل المزيد"
+    },
+    "actions": {
+      "title": "إجراءات العميل",
+      "resetPassword": "إعادة تعيين كلمة المرور",
+      "setPassword": "تعيين",
+      "sendResetEmail": "إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
+      "newPasswordPlaceholder": "كلمة مرور جديدة (8 أحرف على الأقل)",
+      "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+      "passwordUpdated": "تم تحديث كلمة المرور بنجاح",
+      "resetEmailSent": "تم إرسال بريد إعادة تعيين كلمة المرور",
+      "dangerZone": "منطقة الخطر",
+      "deleteClient": "حذف العميل",
+      "deleteWarning": "سيؤدي هذا إلى الحذف الدائم لحساب {name} وخططه وجميع بيانات التمارين. لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "confirmDelete": "حذف نهائي"
     },
     "stats": {
       "workoutActivity": "نشاط التمارين",

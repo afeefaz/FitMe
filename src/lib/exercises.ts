@@ -53,7 +53,8 @@ export type MuscleGroup = (typeof SMART_GENERATOR_GROUPS)[number];
 
 export async function fetchExercisesByMuscle(
   muscle: string,
-  limit = 10
+  limit = 20,
+  skip = 0
 ): Promise<ExerciseDBItem[]> {
   const apiMuscle = MUSCLE_GROUP_MAP[muscle.toLowerCase()] ?? muscle;
   const expectedBodyPart = MUSCLE_TO_BODY_PART[apiMuscle];
@@ -63,13 +64,14 @@ export async function fetchExercisesByMuscle(
   // first, "abs" last). We fetch pages of 100 and filter client-side until we
   // have enough matching exercises. Next.js caches each page for 1 hour, so
   // subsequent calls to different muscle groups that share a cached page are free.
-  const results: ExerciseDBItem[] = [];
-  let offset = 0;
+  const allMatching: ExerciseDBItem[] = [];
+  let apiOffset = 0;
   const batchSize = 100; // max allowed by the API
   const maxBatches = 15; // sample up to 1500 exercises
+  const need = skip + limit; // how many total we need to collect before slicing
 
-  for (let i = 0; i < maxBatches && results.length < limit; i++) {
-    const url = `${EXERCISEDB_BASE}/exercises?offset=${offset}&limit=${batchSize}`;
+  for (let i = 0; i < maxBatches && allMatching.length < need; i++) {
+    const url = `${EXERCISEDB_BASE}/exercises?offset=${apiOffset}&limit=${batchSize}`;
     const res = await fetch(url, {
       next: { revalidate: 3600 },
     });
@@ -89,14 +91,14 @@ export async function fetchExercisesByMuscle(
           (bp) => bp.toLowerCase() === expectedBodyPart.toLowerCase()
         );
       if (matchesTarget || matchesBodyPart) {
-        results.push(ex);
-        if (results.length >= limit) break;
+        allMatching.push(ex);
+        if (allMatching.length >= need) break;
       }
     }
 
     if (batch.length < batchSize) break; // no more pages
-    offset += batchSize;
+    apiOffset += batchSize;
   }
 
-  return results.slice(0, limit);
+  return allMatching.slice(skip, skip + limit);
 }

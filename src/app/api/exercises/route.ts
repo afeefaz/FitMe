@@ -13,7 +13,8 @@ const querySchema = z.object({
     .refine((v) => Object.keys(MUSCLE_GROUP_MAP).includes(v), {
       message: "Invalid muscle group",
     }),
-  limit: z.coerce.number().int().min(1).max(20).default(10),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export async function GET(request: NextRequest) {
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
   const parsed = querySchema.safeParse({
     muscle: searchParams.get("muscle"),
     limit: searchParams.get("limit") ?? undefined,
+    offset: searchParams.get("offset") ?? undefined,
   });
 
   if (!parsed.success) {
@@ -40,12 +42,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { muscle, limit } = parsed.data;
+  const { muscle, limit, offset } = parsed.data;
   const apiMuscle = MUSCLE_GROUP_MAP[muscle] ?? muscle;
 
   // ── 1. Try ExerciseDB API ─────────────────────────────────────
   try {
-    const exercises = await fetchExercisesByMuscle(muscle, limit);
+    const exercises = await fetchExercisesByMuscle(muscle, limit, offset);
 
     if (exercises.length > 0) {
       // Cache in background (don't await — don't block the response)
@@ -62,7 +64,7 @@ export async function GET(request: NextRequest) {
     .from("exercise_cache")
     .select("*")
     .contains("target_muscles", [apiMuscle])
-    .limit(limit) as { data: ExerciseCache[] | null; error: unknown };
+    .range(offset, offset + limit - 1) as { data: ExerciseCache[] | null; error: unknown };
 
   if (cacheError || !cached || cached.length === 0) {
     return NextResponse.json(

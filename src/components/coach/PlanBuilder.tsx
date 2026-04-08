@@ -66,6 +66,8 @@ export function PlanBuilder({
   const router = useRouter();
   const [planName, setPlanName] = useState(existingPlanName ?? t("defaultPlanName"));
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [currentPlanId, setCurrentPlanId] = useState<string | undefined>(existingPlanId);
   const [error, setError] = useState<string | null>(null);
   const [subTab, setSubTab] = useState<SubTab>("plan");
   const [activeDayIdx, setActiveDayIdx] = useState(0);
@@ -111,18 +113,16 @@ export function PlanBuilder({
   };
 
   const handleAdd = useCallback(
-    (exercise: ExerciseDBItem) => {
+    (exercises: ExerciseDBItem[]) => {
       setDays((prev) =>
-        prev.map((d, i) =>
-          i === activeDayIdx
-            ? {
-                ...d,
-                exercises: d.exercises.some((ex) => ex.exercise.exerciseId === exercise.exerciseId)
-                  ? d.exercises
-                  : [...d.exercises, { exercise, sets: 3, reps: 10, restSeconds: 60 }],
-              }
-            : d
-        )
+        prev.map((d, i) => {
+          if (i !== activeDayIdx) return d;
+          const existingIds = new Set(d.exercises.map((ex) => ex.exercise.exerciseId));
+          const newItems = exercises
+            .filter((ex) => !existingIds.has(ex.exerciseId))
+            .map((ex) => ({ exercise: ex, sets: 3, reps: 10, restSeconds: 60 }));
+          return { ...d, exercises: [...d.exercises, ...newItems] };
+        })
       );
       setSubTab("plan");
     },
@@ -167,8 +167,8 @@ export function PlanBuilder({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sb = createClient() as any;
 
-      const planResult = existingPlanId
-        ? await sb.from("plans").update({ name: planName }).eq("id", existingPlanId).select("id").single()
+      const planResult = currentPlanId
+        ? await sb.from("plans").update({ name: planName }).eq("id", currentPlanId).select("id").single()
         : await sb.from("plans").insert({ name: planName, client_id: clientId, is_draft: false }).select("id").single();
 
       const plan = planResult.data as { id: string } | null;
@@ -208,8 +208,10 @@ export function PlanBuilder({
       }
 
       await sb.from("clients").update({ status: "active" }).eq("id", clientId);
-      router.push("/coach/clients");
+      if (!currentPlanId) setCurrentPlanId(planId);
       router.refresh();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       setError((err as Error).message ?? t("errorSomethingWrong"));
     } finally {
@@ -333,6 +335,13 @@ export function PlanBuilder({
       )}
 
       {error && <p style={{ color: "var(--color-red)", fontSize: "13px", marginTop: "16px", textAlign: "center" }}>{error}</p>}
+
+      {saved && (
+        <div style={{ marginTop: "16px", padding: "12px 16px", borderRadius: "14px", backgroundColor: "rgba(204,255,0,0.12)", border: "1px solid rgba(204,255,0,0.3)", display: "flex", alignItems: "center", gap: "8px", animation: "var(--animate-fade-in)" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-lime)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-lime)", margin: 0 }}>{t("saved")}</p>
+        </div>
+      )}
 
       <div style={{ marginTop: "32px", paddingBottom: "32px" }}>
         {totalExercises > 0 && (

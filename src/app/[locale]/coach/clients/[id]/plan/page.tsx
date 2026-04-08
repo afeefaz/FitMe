@@ -3,6 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlanBuilder } from "@/components/coach/PlanBuilder";
 import { ClientStats } from "@/components/coach/ClientStats";
+import { ClientActionsButton } from "@/components/coach/ClientActionsButton";
 import { TabWrapper } from "@/components/ui/TabWrapper";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 
@@ -196,23 +197,29 @@ export default async function PlanBuilderPage({ params }: PageProps) {
     <div style={{ padding: "24px 16px" }}>
       {/* Header */}
       <div style={{ marginBottom: "28px" }}>
-        <a
-          href="/coach/clients"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            color: "var(--color-text-muted)",
-            fontSize: "14px",
-            textDecoration: "none",
-            marginBottom: "16px",
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          {tc("title")}
-        </a>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+          <a
+            href="/coach/clients"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              color: "var(--color-text-muted)",
+              fontSize: "14px",
+              textDecoration: "none",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            {tc("title")}
+          </a>
+          <ClientActionsButton
+            clientId={clientId}
+            traineeId={trainee.id}
+            traineeName={trainee.full_name}
+          />
+        </div>
         <h1 style={{ fontSize: "28px", fontWeight: 800, color: "var(--color-text)", lineHeight: 1.2 }}>
           {trainee.full_name}
         </h1>

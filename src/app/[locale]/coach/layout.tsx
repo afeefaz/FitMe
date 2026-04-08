@@ -13,6 +13,12 @@ const HomeIcon = ({ filled }: { filled?: boolean }) => (
   </svg>
 );
 
+const DumbbellIcon = ({ filled }: { filled?: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4M6 9h12M6 15h12"/>
+  </svg>
+);
+
 const UsersIcon = ({ filled }: { filled?: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -49,6 +55,12 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
       label: t("home"),
       icon: <HomeIcon />,
       activeIcon: <HomeIcon filled />,
+    },
+    {
+      href: "/coach/workouts",
+      label: t("workouts"),
+      icon: <DumbbellIcon />,
+      activeIcon: <DumbbellIcon filled />,
     },
     {
       href: "/coach/clients",

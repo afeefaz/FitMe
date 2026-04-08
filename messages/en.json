@@ -53,7 +53,19 @@
       "greeting": "Good day 👋",
       "totalClients": "TOTAL CLIENTS",
       "viewClients": "View Clients",
-      "managePlans": "Manage plans and track progress"
+      "managePlans": "Manage plans and track progress",
+      "needsAttention": "NEEDS ATTENTION",
+      "allClients": "ALL CLIENTS",
+      "recentActivity": "RECENT ACTIVITY",
+      "noRecentActivity": "No recent workout activity",
+      "addNewClient": "+ Add Client",
+      "noPlan": "No plan",
+      "inactive": "Inactive",
+      "lastActive": "Last active",
+      "never": "Never",
+      "daysAgo": "{days}d ago",
+      "needsPlan": "Needs Plan",
+      "browseExercises": "Browse Exercises"
     },
     "clients": {
       "title": "Clients",
@@ -87,6 +99,7 @@
       "errorCouldNotCreate": "Could not create plan",
       "errorSomethingWrong": "Something went wrong",
       "noExercisesAdded": "No exercises added yet. Browse below to add some.",
+      "saved": "Plan saved ✓",
       "sets": "Sets",
       "reps": "Reps",
       "rest": "Rest",
@@ -114,7 +127,24 @@
       "loadError": "Could not load exercises. Please try again.",
       "selectGroup": "Select a muscle group to browse exercises",
       "added": "Added",
-      "add": "Add exercise"
+      "add": "Add exercise",
+      "addSelected": "Add {count} exercises",
+      "loadMore": "Load More"
+    },
+    "actions": {
+      "title": "Client Actions",
+      "resetPassword": "RESET PASSWORD",
+      "setPassword": "Set",
+      "sendResetEmail": "Send password reset email",
+      "newPasswordPlaceholder": "New password (min 8 chars)",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordUpdated": "Password updated successfully",
+      "resetEmailSent": "Password reset email sent",
+      "dangerZone": "DANGER ZONE",
+      "deleteClient": "Delete Client",
+      "deleteWarning": "This will permanently delete {name}'s account, plans, and all workout data. This cannot be undone.",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete Forever"
     },
     "stats": {
       "workoutActivity": "WORKOUT ACTIVITY",

@@ -112,12 +112,19 @@ logged_at TIMESTAMPTZ, logged_date DATE DEFAULT CURRENT_DATE
 ```
 src/
 ├── app/
+│   ├── api/
+│   │   ├── exercises/route.ts              — ExerciseDB proxy (muscle, limit, offset params)
+│   │   └── admin/
+│   │       ├── create-client/route.ts      — coach creates trainee account
+│   │       ├── delete-client/route.ts      — full deletion (auth + all data)
+│   │       └── reset-password/route.ts     — set password directly or send reset email
 │   ├── coach/
-│   │   ├── dashboard/page.tsx          — coach home
+│   │   ├── dashboard/page.tsx          — client management command center
 │   │   ├── clients/page.tsx            — client list
-│   │   ├── clients/[id]/plan/page.tsx  — plan builder + client stats tabs
+│   │   ├── clients/[id]/plan/page.tsx  — plan builder + client stats tabs + actions button
+│   │   ├── workouts/page.tsx           — browse exercises (standalone, no plan editing)
 │   │   ├── profile/page.tsx            — coach profile
-│   │   └── layout.tsx                  — coach nav + realtime dot
+│   │   └── layout.tsx                  — 4-tab nav (Home/Workouts/Clients/Profile) + realtime dot
 │   ├── trainee/
 │   │   ├── today/page.tsx              — weekly workout view
 │   │   ├── workouts/page.tsx           — workout history
@@ -129,11 +136,14 @@ src/
 │   └── layout.tsx                      — root HTML
 ├── components/
 │   ├── coach/
-│   │   ├── PlanBuilder.tsx             — multi-day plan builder (weekly)
-│   │   ├── ExerciseSearch.tsx          — muscle group search + detail modal
-│   │   ├── ExerciseCard.tsx            — search result card (tap thumbnail for gif)
+│   │   ├── PlanBuilder.tsx             — multi-day plan builder; batch add; shows saved toast
+│   │   ├── ExerciseSearch.tsx          — multi-select mode + load more pagination
+│   │   ├── ExerciseCard.tsx            — selectable mode (checkbox) + normal add button mode
 │   │   ├── PlanExerciseList.tsx        — edit exercises in a day (tap name for gif)
 │   │   ├── ClientStats.tsx             — per-client workout/BMI/water stats
+│   │   ├── ClientActionsSheet.tsx      — bottom sheet: reset password + delete client
+│   │   ├── ClientActionsButton.tsx     — client component wrapper for plan page header
+│   │   ├── CoachExerciseBrowser.tsx    — browse-only exercise browser (auto-loads chest)
 │   │   ├── ClientsList.tsx / ClientRow.tsx / AddClientSheet.tsx
 │   │   └── ExerciseCard.tsx
 │   ├── trainee/
@@ -153,7 +163,7 @@ src/
 ├── lib/
 │   ├── supabase/{client,server,admin}.ts
 │   ├── types.ts                        — shared TypeScript interfaces
-│   └── exercises.ts                    — MUSCLE_GROUP_MAP
+│   └── exercises.ts                    — MUSCLE_GROUP_MAP, fetchExercisesByMuscle(muscle, limit, skip)
 ├── hooks/
 │   └── useRealtimeNotification.ts      — Zustand + Supabase Realtime
 └── middleware.ts                       — auth guard + role routing
@@ -175,7 +185,7 @@ const result = await (supabase as any).from("tablename").select(`...`);
 - legs → quads (+hamstrings, glutes, calves), arms → biceps (+triceps), core → abs
 
 ### Exercise API
-`GET /api/exercises?muscle=<group>` — proxies ExerciseDB, cached in `exercise_cache` table for 7 days.
+`GET /api/exercises?muscle=<group>&limit=<n>&offset=<n>` — proxies ExerciseDB, cached in `exercise_cache` table for 7 days. Default limit 20, max 50. Supports pagination via `offset`.
 
 ### Auth flow
 - `/` redirects based on role → `/coach/dashboard` or `/trainee/today`
@@ -186,7 +196,11 @@ const result = await (supabase as any).from("tablename").select(`...`);
 
 ## Features Implemented
 
-- **Coach:** dashboard, add clients via invite code, plan builder (weekly multi-day), client stats tab (workouts/BMI/water/streak), realtime workout notification dot
+- **Coach — Dashboard:** client management command center — greeting, Needs Attention section (amber, clients with `needs_plan` status), All Clients list with last active badge, Recent Activity feed (last 5 workout logs), quick action buttons (Browse Exercises + View Clients); Add Client button in header
+- **Coach — Plan Builder:** multi-day (weekly) plan builder; multi-select exercises (checkbox mode, floating "Add N" lime button); load more pagination (20/page, offset-based); save plan in-place (no redirect) with inline success toast (3s fade); tracks `currentPlanId` for edit vs create
+- **Coach — Exercise Search:** multi-select mode with floating "Add N exercises" lime button; load more pagination; already-added exercises shown as disabled
+- **Coach — Client Actions:** ⚙️ gear button on plan page header → `ClientActionsSheet` bottom sheet; Reset Password (set directly or send email); Delete Client (full deletion: auth + all data) with confirmation warning
+- **Coach — Workouts tab:** 4th nav tab; browse-only exercise browser (`CoachExerciseBrowser`); auto-loads chest on mount; tap any card → `ExerciseDetailModal`; muscle group pills + Load More
 - **Trainee — Navigation:** 4-tab bottom nav (Home / Plans / Activity / Profile)
 - **Trainee — Home (`TraineeHome`):** greeting by time-of-day, today's plan card (taps → plan detail), today's activity stat pills (sets/calories/active-min/water), Start Workout button (→ `/trainee/workout`)
 - **Trainee — Plans:** plans list page, plan detail (`PlanDetail`) with Overview / Exercises / History tabs, exercise GIF detail modal (tap thumbnail or name), sticky Start Workout button (→ `/trainee/workout`), locale-aware back button
