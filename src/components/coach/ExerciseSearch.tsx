@@ -26,8 +26,8 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
   const [detailExercise, setDetailExercise] = useState<ModalExercise | null>(null);
-  // Multi-select state
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  // Multi-select: Map persists across muscle group changes
+  const [selectedExercises, setSelectedExercises] = useState<Map<string, ExerciseDBItem>>(new Map());
   const abortRef = useRef<AbortController | null>(null);
 
   const fetchGroup = useCallback(async (group: string) => {
@@ -41,7 +41,7 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
     setExercises([]);
     setOffset(0);
     setHasMore(false);
-    setSelectedIds(new Set());
+    // NOTE: do NOT clear selectedExercises — selections persist across muscle groups
 
     try {
       const res = await fetch(`/api/exercises?muscle=${group}&limit=${PAGE_SIZE}&offset=0`, {
@@ -81,24 +81,58 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
   }, [selectedGroup, offset, loadingMore]);
 
   const toggleSelect = useCallback((exercise: ExerciseDBItem) => {
-    if (addedIds.has(exercise.exerciseId)) return; // can't select already-added
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
+    if (addedIds.has(exercise.exerciseId)) return;
+    setSelectedExercises((prev) => {
+      const next = new Map(prev);
       if (next.has(exercise.exerciseId)) next.delete(exercise.exerciseId);
-      else next.add(exercise.exerciseId);
+      else next.set(exercise.exerciseId, exercise);
       return next;
     });
   }, [addedIds]);
 
   const handleAddSelected = () => {
-    const toAdd = exercises.filter((ex) => selectedIds.has(ex.exerciseId));
-    if (toAdd.length === 0) return;
-    onAdd(toAdd);
-    setSelectedIds(new Set());
+    if (selectedExercises.size === 0) return;
+    onAdd(Array.from(selectedExercises.values()));
+    setSelectedExercises(new Map());
   };
 
   return (
     <div style={{ position: "relative" }}>
+      {/* Cross-muscle selection summary */}
+      {selectedExercises.size > 0 && (
+        <div
+          style={{
+            marginBottom: "10px",
+            padding: "8px 12px",
+            borderRadius: "12px",
+            backgroundColor: "rgba(204,255,0,0.08)",
+            border: "1.5px solid rgba(204,255,0,0.25)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "8px",
+          }}
+        >
+          <p style={{ color: "var(--color-lime)", fontSize: "13px", fontWeight: 700 }}>
+            {selectedExercises.size} {selectedExercises.size === 1 ? "exercise" : "exercises"} selected
+          </p>
+          <button
+            onClick={() => setSelectedExercises(new Map())}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--color-text-muted)",
+              fontSize: "12px",
+              cursor: "pointer",
+              padding: "2px 6px",
+              borderRadius: "8px",
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Muscle group pills */}
       <div
         style={{
@@ -156,7 +190,7 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
             onAdd={(e) => onAdd([e])}
             isAdded={addedIds.has(ex.exerciseId)}
             selectable={!addedIds.has(ex.exerciseId)}
-            isSelected={selectedIds.has(ex.exerciseId)}
+            isSelected={selectedExercises.has(ex.exerciseId)}
             onToggleSelect={toggleSelect}
             onDetail={(e) => setDetailExercise({ name: e.name, gifUrl: e.gifUrl, targetMuscles: e.targetMuscles, bodyParts: e.bodyParts, equipments: e.equipments, instructions: e.instructions })}
           />
@@ -187,7 +221,7 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
       </div>
 
       {/* Floating "Add N exercises" button */}
-      {selectedIds.size > 0 && (
+      {selectedExercises.size > 0 && (
         <div
           style={{
             position: "sticky",
@@ -213,7 +247,7 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
               letterSpacing: "-0.01em",
             }}
           >
-            {t("addSelected", { count: selectedIds.size })}
+            {t("addSelected", { count: selectedExercises.size })}
           </button>
         </div>
       )}

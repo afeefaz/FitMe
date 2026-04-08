@@ -3,14 +3,16 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { adminClient } from "@/lib/supabase/admin";
 
+// Either email or username must be provided (not both required)
 const bodySchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional(),
+  username: z.string().min(3, "Username must be at least 3 characters").max(30).regex(/^[a-z0-9_]+$/, "Username can only contain lowercase letters, numbers, and underscores").optional(),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(72),
-});
+}).refine(d => d.email || d.username, { message: "Email or username is required" });
 
 export async function POST(request: NextRequest) {
   // ── 1. Authenticate the requester ────────────────────────────
@@ -50,7 +52,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { full_name, email, password } = parsed.data;
+  const { full_name, email: rawEmail, username, password } = parsed.data;
+
+  // If username provided without email, generate a placeholder email
+  const email = rawEmail ?? `${username}@fitme.local`;
 
   // ── 4. Create auth user via Admin API ────────────────────────
   const { data: newAuthUser, error: createError } =
@@ -61,6 +66,7 @@ export async function POST(request: NextRequest) {
       user_metadata: {
         full_name,
         role: "trainee",
+        ...(username ? { username } : {}),
       },
     });
 
@@ -98,7 +104,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       success: true,
-      trainee: { id: traineeId, email, full_name },
+      trainee: { id: traineeId, email, full_name, username: username ?? null },
     },
     { status: 201 }
   );

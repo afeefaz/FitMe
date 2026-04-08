@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { useNotificationStore, useRealtimeNotification } from "@/hooks/useRealtimeNotification";
 import { createClient } from "@/lib/supabase/client";
+import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 
 const HomeIcon = ({ filled }: { filled?: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -86,6 +87,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
         {children}
       </main>
       <BottomNav items={navItems} />
+      <PWAInstallPrompt />
     </div>
   );
 }

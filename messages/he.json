@@ -46,7 +46,8 @@
     "workouts": "אימונים",
     "plans": "תוכניות",
     "activity": "פעילות",
-    "profile": "פרופיל"
+    "profile": "פרופיל",
+    "exercises": "תרגילים"
   },
   "coach": {
     "dashboard": {
@@ -261,14 +262,16 @@
       "workoutsLogged": "{count, plural, one {אימון # נרשם} other {# אימונים נרשמו}}",
       "noWorkouts": "עדיין אין אימונים. התחל לרשום סטים בדף האימון שלך!",
       "done": "בוצע",
-      "sets": "{count, plural, one {סט #} other {# סטים}}"    },
+      "sets": "{count, plural, one {סט #} other {# סטים}}"
+    },
     "water": {
       "title": "רישום שתייה",
       "sip": "לגימה",
       "cup": "כוס",
       "bottle": "בקבוק",
       "large": "בקבוק גדול",
-      "undo": "בטל"    }
+      "undo": "בטל"
+    }
   },
   "settings": {
     "title": "פרופיל",
@@ -307,7 +310,9 @@
     "saveStats": "שמור נתונים",
     "nameUpdated": "השם עודכן!",
     "passwordUpdated": "הסיסמה עודכנה!",
-    "statsSaved": "הנתונים נשמרו!"
+    "statsSaved": "הנתונים נשמרו!",
+    "shareApp": "שתף אפליקציה",
+    "linkCopied": "הקישור הועתק ✓"
   },
   "validation": {
     "nameMin": "השם חייב להכיל לפחות 2 תווים",

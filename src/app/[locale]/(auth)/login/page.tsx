@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -17,26 +17,34 @@ export default function LoginPage() {
   const tv = useTranslations("validation");
   const tc = useTranslations("common");
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // email or username
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const [signupEnabled, setSignupEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/settings/signup-enabled")
+      .then((r) => r.json())
+      .then((d) => setSignupEnabled(d.enabled))
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrors({});
 
     const loginSchema = z.object({
-      email: z.string().email(tv("emailInvalid")),
+      identifier: z.string().min(1, "Email or username is required"),
       password: z.string().min(6, tv("passwordMin6")),
     });
 
-    const result = loginSchema.safeParse({ email, password });
+    const result = loginSchema.safeParse({ identifier, password });
     if (!result.success) {
       const fieldErrors: FormErrors = {};
       result.error.issues.forEach((err) => {
-        const field = err.path[0] as keyof FormErrors;
+        const field = err.path[0] === "identifier" ? "email" : err.path[0] as keyof FormErrors;
         fieldErrors[field] = err.message;
       });
       setErrors(fieldErrors);
@@ -44,10 +52,34 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+
+    // Resolve username to email if needed (no @ means it's a username)
+    let resolvedEmail = identifier;
+    if (!identifier.includes("@")) {
+      try {
+        const res = await fetch("/api/auth/resolve-username", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: identifier }),
+        });
+        if (!res.ok) {
+          setErrors({ email: "Username not found" });
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        resolvedEmail = data.email;
+      } catch {
+        setErrors({ root: "Network error. Please try again." });
+        setLoading(false);
+        return;
+      }
+    }
+
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: result.data.email,
-      password: result.data.password,
+      email: resolvedEmail,
+      password,
     });
 
     if (error) {
@@ -127,22 +159,24 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Email */}
+          {/* Email or Username */}
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="email"
               className="text-sm"
               style={{ color: "var(--color-text-muted)", fontWeight: 600 }}
             >
-              {t("email")}
+              Email or Username
             </label>
             <input
               id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("emailPlaceholder")}
+              type="text"
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="email@example.com or username"
               className="w-full px-4 py-3.5 rounded-2xl text-base outline-none transition-all"
               style={{
                 background: "var(--color-surface-2)",
@@ -261,18 +295,20 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p
-          className="text-center text-sm mt-6"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          {t("noAccount")}{" "}
-          <Link
-            href="/signup"
-            style={{ color: "var(--color-lime)", fontWeight: 600 }}
+        {signupEnabled && (
+          <p
+            className="text-center text-sm mt-6"
+            style={{ color: "var(--color-text-muted)" }}
           >
-            {t("signupLink")}
-          </Link>
-        </p>
+            {t("noAccount")}{" "}
+            <Link
+              href="/signup"
+              style={{ color: "var(--color-lime)", fontWeight: 600 }}
+            >
+              {t("signupLink")}
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );

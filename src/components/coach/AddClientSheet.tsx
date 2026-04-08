@@ -5,7 +5,8 @@ import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "next-intl";
 
-type FormErrors = Partial<Record<"full_name" | "email" | "password" | "root", string>>;
+type FormErrors = Partial<Record<"full_name" | "email" | "username" | "password" | "root", string>>;
+type Mode = "email" | "username";
 
 interface AddClientSheetProps {
   onClose: () => void;
@@ -15,8 +16,10 @@ interface AddClientSheetProps {
 export function AddClientSheet({ onClose, onSuccess }: AddClientSheetProps) {
   const t = useTranslations("coach.clients");
   const tv = useTranslations("validation");
+  const [mode, setMode] = useState<Mode>("email");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -25,13 +28,31 @@ export function AddClientSheet({ onClose, onSuccess }: AddClientSheetProps) {
     e.preventDefault();
     setErrors({});
 
-    const runtimeSchema = z.object({
+    const baseFields = {
       full_name: z.string().min(2, tv("nameMin")),
-      email: z.string().email(tv("emailInvalid")),
       password: z.string().min(8, tv("passwordMin8")),
-    });
+    };
 
-    const result = runtimeSchema.safeParse({ full_name: fullName, email, password });
+    const schema =
+      mode === "email"
+        ? z.object({
+            ...baseFields,
+            email: z.string().email(tv("emailInvalid")),
+          })
+        : z.object({
+            ...baseFields,
+            username: z
+              .string()
+              .min(3, "Username must be at least 3 characters")
+              .max(30)
+              .regex(/^[a-z0-9_]+$/, "Lowercase letters, numbers, underscores only"),
+          });
+
+    const rawData = mode === "email"
+      ? { full_name: fullName, email, password }
+      : { full_name: fullName, username, password };
+
+    const result = schema.safeParse(rawData);
     if (!result.success) {
       const fieldErrors: FormErrors = {};
       result.error.issues.forEach((err) => {
@@ -132,11 +153,44 @@ export function AddClientSheet({ onClose, onSuccess }: AddClientSheetProps) {
             fontSize: "20px",
             fontWeight: 800,
             color: "var(--color-text)",
-            marginBottom: "20px",
+            marginBottom: "16px",
           }}
         >
           {t("addClient")}
         </h2>
+
+        {/* Mode toggle */}
+        <div
+          style={{
+            display: "flex",
+            background: "var(--color-surface-2)",
+            borderRadius: "14px",
+            padding: "3px",
+            marginBottom: "20px",
+          }}
+        >
+          {(["email", "username"] as Mode[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => { setMode(m); setErrors({}); }}
+              style={{
+                flex: 1,
+                padding: "8px",
+                borderRadius: "11px",
+                border: "none",
+                background: mode === m ? "var(--color-lime)" : "transparent",
+                color: mode === m ? "#000" : "var(--color-text-muted)",
+                fontWeight: mode === m ? 700 : 500,
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {m === "email" ? "📧 Email" : "👤 Username"}
+            </button>
+          ))}
+        </div>
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           {errors.root && (
@@ -171,22 +225,45 @@ export function AddClientSheet({ onClose, onSuccess }: AddClientSheetProps) {
             {errors.full_name && <p style={{ fontSize: "12px", color: "#FCA5A5" }}>{errors.full_name}</p>}
           </div>
 
-          {/* Email */}
-          <div className="flex flex-col gap-1.5">
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)" }}>
-              {t("emailLabel")}
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("emailPlaceholder")}
-              style={inputStyle(!!errors.email)}
-              onFocus={(e) => { if (!errors.email) e.target.style.border = "1.5px solid var(--color-lime)"; }}
-              onBlur={(e) => { if (!errors.email) e.target.style.border = "1.5px solid var(--color-border)"; }}
-            />
-            {errors.email && <p style={{ fontSize: "12px", color: "#FCA5A5" }}>{errors.email}</p>}
-          </div>
+          {/* Email OR Username */}
+          {mode === "email" ? (
+            <div className="flex flex-col gap-1.5">
+              <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)" }}>
+                {t("emailLabel")}
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("emailPlaceholder")}
+                style={inputStyle(!!errors.email)}
+                onFocus={(e) => { if (!errors.email) e.target.style.border = "1.5px solid var(--color-lime)"; }}
+                onBlur={(e) => { if (!errors.email) e.target.style.border = "1.5px solid var(--color-border)"; }}
+              />
+              {errors.email && <p style={{ fontSize: "12px", color: "#FCA5A5" }}>{errors.email}</p>}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-muted)" }}>
+                Username
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                placeholder="e.g. john_doe"
+                autoCapitalize="none"
+                autoCorrect="off"
+                style={inputStyle(!!errors.username)}
+                onFocus={(e) => { if (!errors.username) e.target.style.border = "1.5px solid var(--color-lime)"; }}
+                onBlur={(e) => { if (!errors.username) e.target.style.border = "1.5px solid var(--color-border)"; }}
+              />
+              {errors.username && <p style={{ fontSize: "12px", color: "#FCA5A5" }}>{errors.username}</p>}
+              <p style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
+                Client will log in with this username instead of an email.
+              </p>
+            </div>
+          )}
 
           {/* Temp Password */}
           <div className="flex flex-col gap-1.5">

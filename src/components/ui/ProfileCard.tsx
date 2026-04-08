@@ -85,8 +85,21 @@ export function ProfileCard({ fullName, email, role, heightCm, weightKg, dateOfB
     document.documentElement.setAttribute("data-theme", next);
   };
 
-  const bmi = weightKg && heightCm ? calcBmi(weightKg, heightCm) : null;
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.origin : "https://fitme.app";
+    const shareData = { title: "FitMe", text: "Track your workouts and stay on top of your fitness goals with FitMe!", url };
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try { await navigator.share(shareData); } catch { /* dismissed */ }
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2500);
+    }
+  };
   const age = dateOfBirth ? calcAge(dateOfBirth) : null;
+  const bmi = (weight && height) ? calcBmi(parseFloat(weight), parseFloat(height)) : null;
   const bmiCat = bmi ? bmiCategory(bmi) : null;
 
   const showMsg = (msg: string) => { setSaveMsg(msg); setTimeout(() => setSaveMsg(null), 3000); };
@@ -319,6 +332,19 @@ export function ProfileCard({ fullName, email, role, heightCm, weightKg, dateOfB
           <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text)" }}>{tSettings("language")}</span>
         </div>
         <LanguageSelector />
+      </div>
+
+      {/* Share app */}
+      <div
+        onClick={handleShare}
+        className="btn-tap"
+        style={{ padding: "16px 20px", borderRadius: "var(--radius-clay)", background: "var(--color-surface)", boxShadow: "var(--shadow-clay-sm)", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", animation: "var(--animate-slide-up)", animationDelay: "0.12s" }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontSize: "18px" }}>↗</span>
+          <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text)" }}>{tSettings("shareApp")}</span>
+        </div>
+        {shareCopied && <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-lime)" }}>{tSettings("linkCopied")}</span>}
       </div>
 
       {/* Sign out */}

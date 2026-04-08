@@ -46,7 +46,8 @@
     "workouts": "التمارين",
     "plans": "الخطط",
     "activity": "النشاط",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "exercises": "تمارين"
   },
   "coach": {
     "dashboard": {
@@ -261,14 +262,16 @@
       "workoutsLogged": "{count, plural, one {تمرين # مسجل} other {# تمارين مسجلة}}",
       "noWorkouts": "لا تمارين بعد. ابدأ بتسجيل المجموعات في صفحة اليوم!",
       "done": "تم",
-      "sets": "{count, plural, one {مجموعة #} other {# مجموعات}}"    },
+      "sets": "{count, plural, one {مجموعة #} other {# مجموعات}}"
+    },
     "water": {
       "title": "تسجيل الماء",
       "sip": "رشفة",
       "cup": "كوب",
       "bottle": "زجاجة",
       "large": "زجاجة كبيرة",
-      "undo": "تراجع"    }
+      "undo": "تراجع"
+    }
   },
   "settings": {
     "title": "الملف الشخصي",
@@ -307,7 +310,9 @@
     "saveStats": "حفظ البيانات",
     "nameUpdated": "تم تحديث الاسم!",
     "passwordUpdated": "تم تحديث كلمة المرور!",
-    "statsSaved": "تم حفظ البيانات!"
+    "statsSaved": "تم حفظ البيانات!",
+    "shareApp": "مشاركة التطبيق",
+    "linkCopied": "تم نسخ الرابط ✓"
   },
   "validation": {
     "nameMin": "يجب أن يحتوي الاسم على حرفين على الأقل",

@@ -46,7 +46,8 @@
     "workouts": "Workouts",
     "plans": "Plans",
     "activity": "Activity",
-    "profile": "Profile"
+    "profile": "Profile",
+    "exercises": "Exercises"
   },
   "coach": {
     "dashboard": {
@@ -309,7 +310,9 @@
     "saveStats": "Save Stats",
     "nameUpdated": "Name updated!",
     "passwordUpdated": "Password updated!",
-    "statsSaved": "Stats saved!"
+    "statsSaved": "Stats saved!",
+    "shareApp": "Share App",
+    "linkCopied": "Link Copied ✓"
   },
   "validation": {
     "nameMin": "Name must be at least 2 characters",
