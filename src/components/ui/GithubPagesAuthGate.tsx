@@ -66,7 +66,7 @@ export function GithubPagesAuthGate({ locale, mode }: GithubPagesAuthGateProps) 
         return;
       }
 
-      setMessage("Signed in successfully. Static mode is active.");
+      setMessage("Session verified.");
     }
 
     void run();

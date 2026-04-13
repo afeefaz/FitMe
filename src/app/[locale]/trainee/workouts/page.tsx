@@ -2,6 +2,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ActivityDashboard } from "@/components/trainee/ActivityDashboard";
+import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -13,7 +14,7 @@ export default async function TraineeWorkoutsPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    redirect({ href: "/login", locale });
+    return <GithubPagesAuthGate locale={locale} mode="trainee" />;
   }
 
   await getTranslations("trainee.activity");

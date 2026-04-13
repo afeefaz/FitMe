@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ClientsList } from "@/components/coach/ClientsList";
+import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import type { ClientStatus } from "@/lib/types";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
@@ -15,9 +16,11 @@ interface ClientRow {
   };
 }
 
+type Props = { params: Promise<{ locale: string }> };
 
-export default async function CoachClientsPage() {
-  if (isGithubPages) redirect("/en/login");
+export default async function CoachClientsPage({ params }: Props) {
+  const { locale } = await params;
+  if (isGithubPages) return <GithubPagesAuthGate locale={locale} mode="coach" />;
 
   const supabase = await createClient();
   const {

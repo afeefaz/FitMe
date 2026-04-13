@@ -5,6 +5,7 @@ import { PlanBuilder } from "@/components/coach/PlanBuilder";
 import { ClientStats } from "@/components/coach/ClientStats";
 import { ClientActionsButton } from "@/components/coach/ClientActionsButton";
 import { TabWrapper } from "@/components/ui/TabWrapper";
+import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 
@@ -29,7 +30,7 @@ export default async function PlanBuilderPage({ params }: PageProps) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    redirect({ href: "/login", locale });
+    return <GithubPagesAuthGate locale={locale} mode="coach" />;
   }
 
   const t = await getTranslations("coach.plan");
