@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
+import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -11,7 +12,7 @@ export default async function RootPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    redirect({ href: "/login", locale });
+    return <GithubPagesAuthGate locale={locale} mode="root" />;
   }
 
   const supabase = await createClient();

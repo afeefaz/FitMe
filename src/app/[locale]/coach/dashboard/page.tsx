@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -43,7 +44,7 @@ export default async function CoachDashboardPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    redirect({ href: "/login", locale });
+    return <GithubPagesAuthGate locale={locale} mode="coach" />;
   }
 
   const t = await getTranslations("coach.dashboard");
