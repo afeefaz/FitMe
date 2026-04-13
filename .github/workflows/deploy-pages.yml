@@ -43,8 +43,8 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
         run: |
-          npx supabase functions deploy get-signup-enabled --project-ref "$SUPABASE_PROJECT_REF"
-          npx supabase functions deploy auth-resolve-username --project-ref "$SUPABASE_PROJECT_REF"
+          npx supabase functions deploy get-signup-enabled --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
+          npx supabase functions deploy auth-resolve-username --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
           npx supabase functions deploy get-exercises --project-ref "$SUPABASE_PROJECT_REF"
           npx supabase functions deploy admin-toggle-signup --project-ref "$SUPABASE_PROJECT_REF"
           npx supabase functions deploy admin-create-client --project-ref "$SUPABASE_PROJECT_REF"
