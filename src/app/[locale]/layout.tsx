@@ -6,6 +6,9 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 
+const repoName = process.env.GITHUB_PAGES_REPO || "FitMe";
+const basePath = process.env.GITHUB_PAGES === "true" ? `/${repoName}` : "";
+
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -20,7 +23,6 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "FitMe — Personal Coaching",
   description: "Your personal fitness coaching app",
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -60,6 +62,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} dir={isRTL ? "rtl" : "ltr"} suppressHydrationWarning>
       <head>
+        <link rel="manifest" href={`${basePath}/manifest.webmanifest`} crossOrigin="use-credentials" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <Script
           id="theme-init"
           strategy="beforeInteractive"
