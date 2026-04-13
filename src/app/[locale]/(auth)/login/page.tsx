@@ -1,11 +1,10 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
@@ -25,7 +24,7 @@ export default function LoginPage() {
   const [signupEnabled, setSignupEnabled] = useState(true);
 
   useEffect(() => {
-    fetch("/api/settings/signup-enabled")
+    callEdgeFunction("get-signup-enabled")
       .then((r) => r.json())
       .then((d) => setSignupEnabled(d.enabled))
       .catch(() => {});
@@ -57,9 +56,8 @@ export default function LoginPage() {
     let resolvedEmail = identifier;
     if (!identifier.includes("@")) {
       try {
-        const res = await fetch("/api/auth/resolve-username", {
+        const res = await callEdgeFunction("auth-resolve-username", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: identifier }),
         });
         if (!res.ok) {

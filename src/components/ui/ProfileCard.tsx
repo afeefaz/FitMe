@@ -326,7 +326,7 @@ export function ProfileCard({ fullName, email, role, heightCm, weightKg, dateOfB
       </div>
 
       {/* Language selector */}
-      <div style={{ padding: "16px 20px", borderRadius: "var(--radius-clay)", background: "var(--color-surface)", boxShadow: "var(--shadow-clay-sm)", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", animation: "var(--animate-slide-up)", animationDelay: "0.11s" }}>
+      <div style={{ padding: "16px 20px", borderRadius: "var(--radius-clay)", background: "var(--color-surface)", boxShadow: "var(--shadow-clay-sm)", marginBottom: "16px", display: "flex", flexDirection: "column", gap: "12px", animation: "var(--animate-slide-up)", animationDelay: "0.11s" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontSize: "18px" }}>🌐</span>
           <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-text)" }}>{tSettings("language")}</span>

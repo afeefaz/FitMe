@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 
 interface AppSettingsSheetProps {
   onClose: () => void;
@@ -14,7 +15,7 @@ export function AppSettingsSheet({ onClose }: AppSettingsSheetProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/settings/signup-enabled")
+    callEdgeFunction("get-signup-enabled")
       .then((r) => r.json())
       .then((d) => {
         setSignupEnabled(d.enabled);
@@ -28,11 +29,10 @@ export function AppSettingsSheet({ onClose }: AppSettingsSheetProps) {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/toggle-signup", {
+      const res = await callEdgeFunction("admin-toggle-signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled: value }),
-      });
+      }, true);
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Failed to save");

@@ -2,13 +2,17 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
 
-export const dynamic = 'force-dynamic';
+const isGithubPages = process.env.GITHUB_PAGES === "true";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function RootPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  if (isGithubPages) {
+    redirect({ href: "/login", locale });
+  }
 
   const supabase = await createClient();
   const {

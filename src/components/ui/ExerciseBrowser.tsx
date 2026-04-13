@@ -5,6 +5,7 @@ import { MUSCLE_GROUP_MAP } from "@/lib/exercises";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { ExerciseDetailModal, type ModalExercise } from "@/components/ui/ExerciseDetailModal";
 import Image from "next/image";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 import type { ExerciseDBItem } from "@/lib/types";
 
 const MUSCLE_GROUPS = Object.keys(MUSCLE_GROUP_MAP) as string[];
@@ -96,9 +97,11 @@ export function ExerciseBrowser({ title = "Exercise Library", subtitle = "Tap an
     setHasMore(false);
 
     try {
-      const res = await fetch(`/api/exercises?muscle=${group}&limit=${PAGE_SIZE}&offset=0`, {
-        signal: controller.signal,
-      });
+      const res = await callEdgeFunction(
+        `get-exercises?muscle=${group}&limit=${PAGE_SIZE}&offset=0`,
+        { signal: controller.signal },
+        true
+      );
       if (!res.ok) throw new Error();
       const data = await res.json() as { data: ExerciseDBItem[] };
       const results = data.data ?? [];
@@ -118,7 +121,11 @@ export function ExerciseBrowser({ title = "Exercise Library", subtitle = "Tap an
     if (!selectedGroup || loadingMore) return;
     setLoadingMore(true);
     try {
-      const res = await fetch(`/api/exercises?muscle=${selectedGroup}&limit=${PAGE_SIZE}&offset=${offset}`);
+      const res = await callEdgeFunction(
+        `get-exercises?muscle=${selectedGroup}&limit=${PAGE_SIZE}&offset=${offset}`,
+        undefined,
+        true
+      );
       if (!res.ok) throw new Error();
       const data = await res.json() as { data: ExerciseDBItem[] };
       const results = data.data ?? [];

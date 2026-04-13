@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 import { useTranslations } from "next-intl";
 
 type FormErrors = Partial<Record<"full_name" | "email" | "username" | "password" | "root", string>>;
@@ -65,11 +66,10 @@ export function AddClientSheet({ onClose, onSuccess }: AddClientSheetProps) {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/create-client", {
+      const res = await callEdgeFunction("admin-create-client", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(result.data),
-      });
+      }, true);
 
       const data = await res.json();
       if (!res.ok) {

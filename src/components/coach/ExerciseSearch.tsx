@@ -5,6 +5,7 @@ import { MUSCLE_GROUP_MAP } from "@/lib/exercises";
 import { ExerciseCard } from "./ExerciseCard";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { ExerciseDetailModal, type ModalExercise } from "@/components/ui/ExerciseDetailModal";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 import { useTranslations } from "next-intl";
 import type { ExerciseDBItem } from "@/lib/types";
 
@@ -44,9 +45,11 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
     // NOTE: do NOT clear selectedExercises — selections persist across muscle groups
 
     try {
-      const res = await fetch(`/api/exercises?muscle=${group}&limit=${PAGE_SIZE}&offset=0`, {
-        signal: controller.signal,
-      });
+      const res = await callEdgeFunction(
+        `get-exercises?muscle=${group}&limit=${PAGE_SIZE}&offset=0`,
+        { signal: controller.signal },
+        true
+      );
       if (!res.ok) throw new Error("Failed to load exercises");
       const data = await res.json() as { data: ExerciseDBItem[] };
       const results = data.data ?? [];
@@ -66,7 +69,11 @@ export function ExerciseSearch({ addedIds, onAdd }: ExerciseSearchProps) {
     if (!selectedGroup || loadingMore) return;
     setLoadingMore(true);
     try {
-      const res = await fetch(`/api/exercises?muscle=${selectedGroup}&limit=${PAGE_SIZE}&offset=${offset}`);
+      const res = await callEdgeFunction(
+        `get-exercises?muscle=${selectedGroup}&limit=${PAGE_SIZE}&offset=${offset}`,
+        undefined,
+        true
+      );
       if (!res.ok) throw new Error("Failed to load exercises");
       const data = await res.json() as { data: ExerciseDBItem[] };
       const results = data.data ?? [];

@@ -3,8 +3,10 @@ import { redirect } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { TemplatePlanBuilder } from "@/components/coach/TemplatePlanBuilder";
 import { Link } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 
-export const dynamic = 'force-dynamic';
+const isGithubPages = process.env.GITHUB_PAGES === "true";
+
 
 interface PageProps {
   params: Promise<{ templateId: string; locale: string }>;
@@ -31,9 +33,17 @@ type RawTemplateDay = {
   plan_template_exercises: RawTemplateExercise[];
 };
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale, templateId: "placeholder" }));
+}
+
 export default async function TemplatePlanBuilderPage({ params }: PageProps) {
   const { templateId, locale } = await params;
   setRequestLocale(locale);
+
+  if (isGithubPages) {
+    redirect({ href: "/login", locale });
+  }
 
   const t = await getTranslations("coach.plans");
 

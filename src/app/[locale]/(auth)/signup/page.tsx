@@ -1,11 +1,10 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 import { z } from "zod";
 import type { UserRole } from "@/lib/types";
 import { useTranslations, useLocale } from "next-intl";
@@ -45,7 +44,7 @@ export default function SignupPage() {
   const [signupEnabled, setSignupEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch("/api/settings/signup-enabled")
+    callEdgeFunction("get-signup-enabled")
       .then((r) => r.json())
       .then((d) => {
         if (!d.enabled) {

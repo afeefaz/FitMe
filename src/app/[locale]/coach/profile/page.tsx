@@ -4,13 +4,19 @@ import { ProfileCard } from "@/components/ui/ProfileCard";
 import { CoachProfileExtras } from "@/components/coach/CoachProfileExtras";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 
-export const dynamic = 'force-dynamic';
+const isGithubPages = process.env.GITHUB_PAGES === "true";
+
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function CoachProfilePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  if (isGithubPages) {
+    redirect({ href: "/login", locale });
+  }
+
   const tc = await getTranslations("common");
 
   const supabase = await createClient();

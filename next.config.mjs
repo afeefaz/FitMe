@@ -2,12 +2,18 @@ import withPWA from "@ducanh2912/next-pwa";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const repoName = process.env.GITHUB_PAGES_REPO || "FitMe";
+const isGithubPages = process.env.GITHUB_PAGES === "true";
+const basePath = isGithubPages ? `/${repoName}` : "";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
-  transpilePackages: ["@supabase/ssr", "@supabase/supabase-js"],
+  output: isGithubPages ? "export" : "standalone",
+  trailingSlash: true,
+  basePath,
+  assetPrefix: basePath,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

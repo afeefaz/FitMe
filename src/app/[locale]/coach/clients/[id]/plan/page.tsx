@@ -6,6 +6,9 @@ import { ClientStats } from "@/components/coach/ClientStats";
 import { ClientActionsButton } from "@/components/coach/ClientActionsButton";
 import { TabWrapper } from "@/components/ui/TabWrapper";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+
+const isGithubPages = process.env.GITHUB_PAGES === "true";
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -17,11 +20,17 @@ interface ClientJoined {
   trainee: { id: string; full_name: string; email: string } | { id: string; full_name: string; email: string }[] | null;
 }
 
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale, id: "placeholder" }));
+}
 
 export default async function PlanBuilderPage({ params }: PageProps) {
   const { id: clientId, locale } = await params;
   setRequestLocale(locale);
+
+  if (isGithubPages) {
+    redirect({ href: "/login", locale });
+  }
 
   const t = await getTranslations("coach.plan");
   const tc = await getTranslations("coach.clients");

@@ -3,7 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export const dynamic = 'force-dynamic';
+const isGithubPages = process.env.GITHUB_PAGES === "true";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -41,6 +41,10 @@ function formatRelativeTime(dateStr: string): string {
 export default async function CoachDashboardPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  if (isGithubPages) {
+    redirect({ href: "/login", locale });
+  }
 
   const t = await getTranslations("coach.dashboard");
   const tc = await getTranslations("common");

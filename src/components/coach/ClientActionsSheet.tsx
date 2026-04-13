@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { callEdgeFunction } from "@/lib/supabase/functions";
 
 interface ClientActionsSheetProps {
   clientId: string;
@@ -31,11 +32,10 @@ export function ClientActionsSheet({ clientId, traineeId, traineeName, onClose }
     setResetting(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/reset-password", {
+      const res = await callEdgeFunction("admin-reset-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ traineeId, clientId, newPassword }),
-      });
+      }, true);
       if (!res.ok) {
         const d = await res.json() as { error: string };
         throw new Error(d.error);
@@ -54,11 +54,10 @@ export function ClientActionsSheet({ clientId, traineeId, traineeName, onClose }
     setResetting(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/reset-password", {
+      const res = await callEdgeFunction("admin-reset-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ traineeId, clientId, sendEmail: true }),
-      });
+      }, true);
       if (!res.ok) {
         const d = await res.json() as { error: string };
         throw new Error(d.error);
@@ -76,11 +75,10 @@ export function ClientActionsSheet({ clientId, traineeId, traineeName, onClose }
     setDeleting(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/delete-client", {
+      const res = await callEdgeFunction("admin-delete-client", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clientId, traineeId }),
-      });
+      }, true);
       if (!res.ok) {
         const d = await res.json() as { error: string };
         throw new Error(d.error);
@@ -109,19 +107,26 @@ export function ClientActionsSheet({ clientId, traineeId, traineeName, onClose }
       />
 
       {/* Sheet */}
+      <style>{`
+        @keyframes csa-sheet-up {
+          from { transform: translateY(100%); opacity: 0.6; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+      `}</style>
       <div
         style={{
           position: "fixed",
           bottom: 0,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "100%",
+          left: 0,
+          right: 0,
           maxWidth: "480px",
+          margin: "0 auto",
           backgroundColor: "var(--color-surface)",
           borderRadius: "var(--radius-clay-lg) var(--radius-clay-lg) 0 0",
           padding: "24px 20px 40px",
+          paddingBottom: "calc(40px + env(safe-area-inset-bottom, 0px))",
           zIndex: 51,
-          animation: "var(--animate-slide-up)",
+          animation: "csa-sheet-up 0.35s cubic-bezier(0.34,1.56,0.64,1) both",
         }}
       >
         {/* Handle */}

@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { ClientsList } from "@/components/coach/ClientsList";
 import type { ClientStatus } from "@/lib/types";
 
+const isGithubPages = process.env.GITHUB_PAGES === "true";
+
 interface ClientRow {
   id: string;
   status: ClientStatus;
@@ -13,9 +15,10 @@ interface ClientRow {
   };
 }
 
-export const dynamic = 'force-dynamic';
 
 export default async function CoachClientsPage() {
+  if (isGithubPages) redirect("/en/login");
+
   const supabase = await createClient();
   const {
     data: { user },

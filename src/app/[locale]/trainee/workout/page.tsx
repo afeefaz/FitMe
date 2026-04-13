@@ -3,13 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 import { setRequestLocale } from "next-intl/server";
 import { WeeklyPlanView } from "@/components/trainee/WeeklyPlanView";
 
-export const dynamic = "force-dynamic";
+const isGithubPages = process.env.GITHUB_PAGES === "true";
+
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function TraineeWorkoutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  if (isGithubPages) {
+    redirect({ href: "/login", locale });
+  }
 
   const supabase = await createClient();
   const {
