@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
+import { RootPageClientResolver } from "@/components/ui/RootPageClientResolver";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -12,7 +13,7 @@ export default async function RootPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    return <GithubPagesAuthGate locale={locale} mode="root" />;
+    return <RootPageClientResolver locale={locale} />;
   }
 
   const supabase = await createClient();

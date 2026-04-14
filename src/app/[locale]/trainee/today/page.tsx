@@ -2,7 +2,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TraineeHome } from "@/components/trainee/TraineeHome";
 import { setRequestLocale } from "next-intl/server";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
+import { TraineeTodayPageClient } from "@/components/trainee/TraineeTodayPageClient";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -14,7 +14,7 @@ export default async function TraineeTodayPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    return <GithubPagesAuthGate locale={locale} mode="trainee" />;
+    return <TraineeTodayPageClient locale={locale} />;
   }
 
   const supabase = await createClient();

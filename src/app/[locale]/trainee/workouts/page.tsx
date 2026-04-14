@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ActivityDashboard } from "@/components/trainee/ActivityDashboard";
 import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
+import { TraineeWorkoutsPageClient } from "@/components/trainee/TraineeWorkoutsPageClient";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -14,7 +15,7 @@ export default async function TraineeWorkoutsPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    return <GithubPagesAuthGate locale={locale} mode="trainee" />;
+    return <TraineeWorkoutsPageClient />;
   }
 
   await getTranslations("trainee.activity");

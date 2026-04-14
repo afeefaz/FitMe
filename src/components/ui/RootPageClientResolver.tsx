@@ -4,14 +4,11 @@ import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
 
-type Mode = "root" | "coach" | "trainee";
-
-interface GithubPagesAuthGateProps {
+interface RootPageClientResolverProps {
   locale: string;
-  mode: Mode;
 }
 
-export function GithubPagesAuthGate({ locale, mode }: GithubPagesAuthGateProps) {
+export function RootPageClientResolver({ locale }: RootPageClientResolverProps) {
   const router = useRouter();
 
   useEffect(() => {
@@ -26,43 +23,22 @@ export function GithubPagesAuthGate({ locale, mode }: GithubPagesAuthGateProps) 
         return;
       }
 
-      if (mode === "root") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: profile } = await (supabase as any)
-          .from("users")
-          .select("role, preferred_locale")
-          .eq("id", session.user.id)
-          .single();
-
-        const targetLocale = profile?.preferred_locale ?? locale;
-        const targetHref =
-          profile?.role === "coach" ? "/coach/dashboard" : "/trainee/today";
-
-        router.replace(targetHref, { locale: targetLocale });
-        return;
-      }
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: profile } = await (supabase as any)
         .from("users")
-        .select("role")
+        .select("role, preferred_locale")
         .eq("id", session.user.id)
         .single();
 
-      if (mode === "coach" && profile?.role !== "coach") {
-        router.replace("/trainee/today", { locale });
-        return;
-      }
+      const targetLocale = profile?.preferred_locale ?? locale;
+      const targetHref =
+        profile?.role === "coach" ? "/coach/dashboard" : "/trainee/today";
 
-      if (mode === "trainee" && profile?.role !== "trainee") {
-        router.replace("/coach/dashboard", { locale });
-        return;
-      }
-
+      router.replace(targetHref, { locale: targetLocale });
     }
 
     void run();
-  }, [locale, mode, router]);
+  }, [locale, router]);
 
   return (
     <div

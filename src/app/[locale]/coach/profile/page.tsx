@@ -4,6 +4,7 @@ import { ProfileCard } from "@/components/ui/ProfileCard";
 import { CoachProfileExtras } from "@/components/coach/CoachProfileExtras";
 import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { CoachProfilePageClient } from "@/components/coach/CoachProfilePageClient";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 
@@ -15,7 +16,7 @@ export default async function CoachProfilePage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    return <GithubPagesAuthGate locale={locale} mode="coach" />;
+    return <CoachProfilePageClient />;
   }
 
   const tc = await getTranslations("common");

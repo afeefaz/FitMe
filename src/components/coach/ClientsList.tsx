@@ -21,9 +21,10 @@ interface Client {
 interface ClientsListProps {
   clients: Client[];
   draftClientIds?: string[];
+  onRefresh?: () => void | Promise<void>;
 }
 
-export function ClientsList({ clients: initialClients, draftClientIds = [] }: ClientsListProps) {
+export function ClientsList({ clients: initialClients, draftClientIds = [], onRefresh }: ClientsListProps) {
   const t = useTranslations("coach.clients");
   const draftSet = new Set(draftClientIds);
   const router = useRouter();
@@ -37,7 +38,11 @@ export function ClientsList({ clients: initialClients, draftClientIds = [] }: Cl
 
   function handleSuccess() {
     setShowAddSheet(false);
-    router.refresh(); // re-fetch server component data
+    if (onRefresh) {
+      void onRefresh();
+      return;
+    }
+    router.refresh();
   }
 
   return (

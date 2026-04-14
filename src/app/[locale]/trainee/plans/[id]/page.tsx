@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { PlanDetail } from "@/components/trainee/PlanDetail";
 import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
+import { TraineePlanDetailPageClient } from "@/components/trainee/TraineePlanDetailPageClient";
 import { routing } from "@/i18n/routing";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
@@ -20,7 +21,7 @@ export default async function PlanDetailPage({ params }: Props) {
   setRequestLocale(locale);
 
   if (isGithubPages) {
-    return <GithubPagesAuthGate locale={locale} mode="trainee" />;
+    return <TraineePlanDetailPageClient planId={id} />;
   }
 
   const t = await getTranslations("common");
