@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { CoachDashboardPageClient } from "@/components/coach/CoachDashboardPageClient";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
@@ -57,13 +56,9 @@ export default async function CoachDashboardPage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from("users")
-    .select("full_name, role")
+    .select("full_name")
     .eq("id", user!.id)
-    .single<{ full_name: string; role: string }>();
-
-  if (profile?.role !== "coach") {
-    redirect({ href: "/trainee/today", locale });
-  }
+    .single<{ full_name: string }>();
 
   // Fetch all clients with trainee info
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

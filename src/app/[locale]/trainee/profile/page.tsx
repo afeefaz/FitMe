@@ -1,7 +1,6 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileCard } from "@/components/ui/ProfileCard";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { TraineeProfilePageClient } from "@/components/trainee/TraineeProfilePageClient";
 

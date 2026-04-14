@@ -5,7 +5,6 @@ import { PlanBuilder } from "@/components/coach/PlanBuilder";
 import { ClientStats } from "@/components/coach/ClientStats";
 import { ClientActionsButton } from "@/components/coach/ClientActionsButton";
 import { TabWrapper } from "@/components/ui/TabWrapper";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { CoachClientPlanPageClient } from "@/components/coach/CoachClientPlanPageClient";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";

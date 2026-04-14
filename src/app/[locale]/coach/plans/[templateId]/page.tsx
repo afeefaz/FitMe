@@ -3,7 +3,6 @@ import { redirect } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { TemplatePlanBuilder } from "@/components/coach/TemplatePlanBuilder";
 import { Link } from "@/i18n/navigation";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { CoachTemplatePlanBuilderPageClient } from "@/components/coach/CoachTemplatePlanBuilderPageClient";
 import { routing } from "@/i18n/routing";
 

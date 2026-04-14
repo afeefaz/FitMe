@@ -2,7 +2,6 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileCard } from "@/components/ui/ProfileCard";
 import { CoachProfileExtras } from "@/components/coach/CoachProfileExtras";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { CoachProfilePageClient } from "@/components/coach/CoachProfilePageClient";
 

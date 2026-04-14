@@ -2,7 +2,6 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ActivityDashboard } from "@/components/trainee/ActivityDashboard";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { TraineeWorkoutsPageClient } from "@/components/trainee/TraineeWorkoutsPageClient";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";

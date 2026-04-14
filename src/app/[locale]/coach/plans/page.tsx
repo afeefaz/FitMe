@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, Link } from "@/i18n/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { CoachPlansPageClient } from "@/components/coach/CoachPlansPageClient";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";

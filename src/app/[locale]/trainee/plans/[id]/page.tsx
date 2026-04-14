@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { PlanDetail } from "@/components/trainee/PlanDetail";
-import { GithubPagesAuthGate } from "@/components/ui/GithubPagesAuthGate";
 import { TraineePlanDetailPageClient } from "@/components/trainee/TraineePlanDetailPageClient";
 import { routing } from "@/i18n/routing";
 
